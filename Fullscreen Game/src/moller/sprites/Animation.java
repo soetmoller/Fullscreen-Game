@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class Animation {
 
 	private ArrayList scenes;
-	private int sceneIndex;
-	private long movieTime;
+	private int currentScene;
+	private long animationTime;
 	private long totalTime;
 
 	public Animation() {
@@ -28,15 +28,14 @@ public class Animation {
         start();
     }
 
-	// add scene to ArrayList and set time for each scene
 	public synchronized void addScene(Image i, long time) {
 		totalTime += time;
 		scenes.add(new OneScene(i, totalTime));
 	}
 
 	public synchronized void start() {
-		movieTime = 0;
-		sceneIndex = 0;
+		animationTime = 0;
+		currentScene = 0;
 	}
 	
     public Object clone() {
@@ -45,15 +44,14 @@ public class Animation {
 
 	public synchronized void update(long timePassed) {
 		if (scenes.size() > 1) {
-			movieTime += timePassed;
+			animationTime += timePassed;
 
-			// restart
-			if (movieTime >= totalTime) {
-				movieTime = 0;
-				sceneIndex = 0;
+			if (animationTime >= totalTime) {
+				animationTime = 0;
+				currentScene = 0;
 			}
-			while (movieTime > getScene(sceneIndex).endTime) {
-				sceneIndex++;
+			while (animationTime > getScene(currentScene).endTime) {
+				currentScene++;
 			}
 		}
 	}
@@ -62,23 +60,20 @@ public class Animation {
 		if (scenes.size() == 0) {
 			return null;
 		} else {
-			return getScene(sceneIndex).pic;
+			return getScene(currentScene).pic;
 		}
 	}
 
-	// get scene
 	private OneScene getScene(int x) {
 		return (OneScene) scenes.get(x);
 	}
-
-	////////// PRIVATE INNER CLASS ///////////////////
+	
 	private class OneScene {
-
+		
 		Image pic;
 		long endTime;
 
 		public OneScene(Image pic, long endTime) {
-
 			this.pic = pic;
 			this.endTime = endTime;
 		}

@@ -30,10 +30,11 @@ public class GameManager extends Core {
 
 	public static final float GRAVITY = 0.002f;
 
-	private TileMap map;
+	private TileMap tileMap;
+	private Player player;
 	private ResourceManager resourceManager;
 	private InputManager inputManager;
-	private TileMapRenderer renderer;
+	private TileMapRenderer tileMapRenderer;
 
 	private GameAction moveLeft;
 	private GameAction moveRight;
@@ -41,100 +42,52 @@ public class GameManager extends Core {
 	private GameAction exit;
 	private GameAction shoot;
 
-	private GameAction openInventory;
-
-	private GameAction skill_0;
-	private GameAction skill_1;
-	private GameAction skill_2;
-	private GameAction skill_3;
-	private GameAction skill_4;
-	private GameAction skill_5;
-	private GameAction skill_6;
-	private GameAction skill_7;
-	private GameAction skill_8;
-	private GameAction skill_9;
+	private GameAction skill0;
+	private GameAction skill1;
 
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 
 	public void init() {
 		super.init();
-
-		// set up input manager
+		initGameActions();
 		initInput();
-
-		// start resource manager
-		resourceManager = new ResourceManager(sm.getFullScreenWindow()
+		resourceManager = new ResourceManager(screenManager.getFullScreenWindow()
 				.getGraphicsConfiguration());
-
-		// load resources
-		renderer = new TileMapRenderer();
-		renderer.setBackground(resourceManager.loadImage("background.png"));
-
-		// load first map
-		map = resourceManager.loadNextLevel();
+		tileMapRenderer = new TileMapRenderer();
+		tileMapRenderer.setBackground(resourceManager.loadImage("background.png"));
+		tileMap = resourceManager.loadNextLevel();
+		tileMapRenderer.setTileMap(tileMap);
+		tileMapRenderer.setScreenHeight(screenManager.getHeight());
+		tileMapRenderer.setScreenWidth(screenManager.getWidth());
 	}
-
-	/**
-	 * Closes any resources used by the GameManager.
-	 */
-	public void stop() {
-		super.stop();
-	}
-
-	private void initInput() {
-
+	
+	private void initGameActions() {
 		moveLeft = new GameAction("moveLeft");
 		moveRight = new GameAction("moveRight");
 		jump = new GameAction("jump", GameAction.DETECT_INITAL_PRESS_ONLY);
 		exit = new GameAction("exit", GameAction.DETECT_INITAL_PRESS_ONLY);
 		shoot = new GameAction("shoot", GameAction.DETECT_INITAL_PRESS_ONLY);
+		skill0 = new GameAction("Skill_0", GameAction.DETECT_INITAL_PRESS_ONLY);
+		skill1 = new GameAction("Skill_1", GameAction.DETECT_INITAL_PRESS_ONLY);
+	}
 
-		openInventory = new GameAction("open inventory",
-				GameAction.DETECT_INITAL_PRESS_ONLY);
-
-		skill_0 = new GameAction("Skill_0", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_1 = new GameAction("Skill_1", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_2 = new GameAction("Skill_2", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_3 = new GameAction("Skill_3", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_4 = new GameAction("Skill_4", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_5 = new GameAction("Skill_5", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_6 = new GameAction("Skill_6", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_7 = new GameAction("Skill_7", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_8 = new GameAction("Skill_8", GameAction.DETECT_INITAL_PRESS_ONLY);
-		skill_9 = new GameAction("Skill_9", GameAction.DETECT_INITAL_PRESS_ONLY);
-
-		inputManager = new InputManager(sm.getFullScreenWindow());
+	private void initInput() {
+		inputManager = new InputManager(screenManager.getFullScreenWindow());
 		inputManager.setCursor(InputManager.INVISIBLE_CURSOR);
-
-		inputManager.mapToKey(moveLeft, KeyEvent.VK_LEFT);
-		inputManager.mapToKey(moveRight, KeyEvent.VK_RIGHT);
-		inputManager.mapToKey(jump, KeyEvent.VK_UP);
-		inputManager.mapToKey(exit, KeyEvent.VK_ESCAPE);
-		inputManager.mapToKey(shoot, KeyEvent.VK_SPACE);
-
-		inputManager.mapToKey(openInventory, KeyEvent.VK_I);
-
-		// Skillbar
-		inputManager.mapToKey(skill_0, KeyEvent.VK_0);
-		inputManager.mapToKey(skill_1, KeyEvent.VK_1);
-		inputManager.mapToKey(skill_2, KeyEvent.VK_2);
-		inputManager.mapToKey(skill_3, KeyEvent.VK_3);
-		inputManager.mapToKey(skill_4, KeyEvent.VK_4);
-		inputManager.mapToKey(skill_5, KeyEvent.VK_5);
-		inputManager.mapToKey(skill_6, KeyEvent.VK_6);
-		inputManager.mapToKey(skill_7, KeyEvent.VK_7);
-		inputManager.mapToKey(skill_8, KeyEvent.VK_8);
-		inputManager.mapToKey(skill_9, KeyEvent.VK_9);
+		inputManager.mapActionToKey(moveLeft, KeyEvent.VK_LEFT);
+		inputManager.mapActionToKey(moveRight, KeyEvent.VK_RIGHT);
+		inputManager.mapActionToKey(jump, KeyEvent.VK_UP);
+		inputManager.mapActionToKey(exit, KeyEvent.VK_ESCAPE);
+		inputManager.mapActionToKey(shoot, KeyEvent.VK_SPACE);
+		inputManager.mapActionToKey(skill0, KeyEvent.VK_0);
+		inputManager.mapActionToKey(skill1, KeyEvent.VK_1);
 
 	}
 
 	private void checkInput(long elapsedTime) {
-
 		if (exit.isPressed()) {
 			stop();
 		}
-
-		Player player = (Player) map.getPlayer();
 		if (player.isAlive()) {
 			float velocityX = 0;
 			if (moveLeft.isPressed()) {
@@ -149,20 +102,13 @@ public class GameManager extends Core {
 				player.jump(false);
 			}
 			if (shoot.isPressed()) {
-				player.fire();
 				fire();
 			}
-			if (skill_0.isPressed()) {
-				player.setWeaponState(0);
+			if (skill0.isPressed()) {
+				player.setWeaponUsed(0);
 			}
-			if (skill_1.isPressed()) {
-				player.setWeaponState(1);
-			}
-			if (skill_2.isPressed()) {
-				player.setWeaponState(2);
-			}
-			if (skill_3.isPressed()) {
-				player.setWeaponState(3);
+			if (skill1.isPressed()) {
+				player.setWeaponUsed(1);
 			}
 			player.setVelocityX(velocityX);
 		}
@@ -170,40 +116,38 @@ public class GameManager extends Core {
 	}
 
 	public void fire() {
-		Player player = (Player) map.getPlayer();
 		if (player.getAmmo() > 0) {
-			Animation anim = new Animation();
-			if (player.lookingLeft()) {
-				anim.addScene(resourceManager.getMirrorImage(new ImageIcon("Images/bullet1.png").getImage()), 100);
-				Bullet b = new Bullet.Normal(anim, player.getX()
-						+ player.getWidth(), player.getY());
-				b.setVelocityX(-Bullet.BULLET_SPEED);
-				bullets.add(b);
-			}
-			if (!player.lookingLeft()) {
-				anim.addScene(new ImageIcon("Images/bullet1.png").getImage(), 100);
-				Bullet b = new Bullet.Normal(anim, player.getX(), player.getY());
-				b.setVelocityX(Bullet.BULLET_SPEED);
-				bullets.add(b);
-			}
+			player.fire();
+			bullets.add(createBullet());
 		}
+	}
+	
+	private Bullet createBullet() {
+		Animation animation = new Animation();
+		float velocityX;
+		if(player.lookingLeft()) {
+			animation.addScene(resourceManager.getMirrorImage(new ImageIcon("Images/bullet1.png").getImage()), 100);
+			velocityX = -Bullet.BULLET_SPEED;
+		} else {
+			animation.addScene(new ImageIcon("Images/bullet1.png").getImage(), 100);
+			velocityX = Bullet.BULLET_SPEED;
+		}
+		Bullet bullet = new Bullet.HandGunBullet(animation, player.getX(), player.getY());
+		bullet.setVelocityX(velocityX);
+		return bullet;
 	}
 
 	public void draw(Graphics2D g) {
-		Player player = (Player) map.getPlayer();
-		renderer.draw(g, map, sm.getWidth(), sm.getHeight());
-
-		// Draws the text on the screen
-		g.drawString("Ammo: " + player.getAmmo(), 2, 20);
-		g.drawString("Coins: " + player.getCoins(), sm.getWidth() - 100, 20);
+		tileMapRenderer.draw(g);
+		drawInfoText(g);
 
 		// Gets the offsetX and offsetY for the bullets.
-		int mapWidth = TileMapRenderer.tilesToPixels(map.getWidth());
-		int offsetY = sm.getHeight()
-				- TileMapRenderer.tilesToPixels(map.getHeight());
-		int offsetX = sm.getWidth() / 2 - Math.round(player.getX()) - 64;
+		int mapWidth = TileMapRenderer.tilesToPixels(tileMap.getWidth());
+		int offsetY = screenManager.getHeight()
+				- TileMapRenderer.tilesToPixels(tileMap.getHeight());
+		int offsetX = screenManager.getWidth() / 2 - Math.round(player.getX()) - 64;
 		offsetX = Math.min(offsetX, 0);
-		offsetX = Math.max(offsetX, sm.getWidth() - mapWidth);
+		offsetX = Math.max(offsetX, screenManager.getWidth() - mapWidth);
 
 		// Draws the bullets.
 		for (int x = 0; x < bullets.size(); x++) {
@@ -215,12 +159,10 @@ public class GameManager extends Core {
 		}
 
 	}
-
-	/**
-	 * Gets the current map.
-	 */
-	public TileMap getMap() {
-		return map;
+	
+	private void drawInfoText(Graphics2D g) {
+		g.drawString("Ammo: " + player.getAmmo(), 2, 20);
+		g.drawString("Coins: " + player.getCoins(), screenManager.getWidth() - 100, 20);
 	}
 
 	/**
@@ -244,7 +186,7 @@ public class GameManager extends Core {
 		// check each tile for a collision
 		for (int x = fromTileX; x <= toTileX; x++) {
 			for (int y = fromTileY; y <= toTileY; y++) {
-				if (x < 0 || x >= map.getWidth() || map.getTile(x, y) != null) {
+				if (x < 0 || x >= tileMap.getWidth() || tileMap.getTile(x, y) != null) {
 					// collision found, return the tile
 					Point pointCache = new Point(x, y);
 					return pointCache;
@@ -290,7 +232,7 @@ public class GameManager extends Core {
 	 * Sprite collides with the specified Sprite.
 	 */
 	public Sprite getSpriteCollision(Sprite sprite) {
-		Iterator i = map.getSprites();
+		Iterator i = tileMap.getSprites();
 		while (i.hasNext()) {
 			Sprite otherSprite = (Sprite) i.next();
 			if (isCollision(sprite, otherSprite)) {
@@ -305,10 +247,10 @@ public class GameManager extends Core {
 	 * map.
 	 */
 	public void update(long elapsedTime) {
-		Creature player = (Creature) map.getPlayer();
+		player = (Player) tileMap.getPlayer();
 		// player is dead! start map over
 		if (player.getState() == Creature.STATE_DEAD) {
-			map = resourceManager.reloadLevel();
+			tileMap = resourceManager.reloadLevel();
 			return;
 		}
 
@@ -317,7 +259,7 @@ public class GameManager extends Core {
 
 		// update player
 		updateCreature(player, elapsedTime);
-		player.update(elapsedTime);
+		player.updatePosition(elapsedTime);
 
 		// update bullets
 		if (bullets != null) {
@@ -325,7 +267,7 @@ public class GameManager extends Core {
 		}
 
 		// update other sprites
-		Iterator i = map.getSprites();
+		Iterator i = tileMap.getSprites();
 		while (i.hasNext()) {
 			Sprite sprite = (Sprite) i.next();
 			if (sprite instanceof Creature) {
@@ -336,7 +278,7 @@ public class GameManager extends Core {
 					updateCreature(creature, elapsedTime);
 				}
 			}
-			sprite.update(elapsedTime);
+			sprite.updatePosition(elapsedTime);
 		}
 	}
 
@@ -494,8 +436,7 @@ public class GameManager extends Core {
 	 */
 	public void acquirePowerUp(Item powerUp) {
 		// remove it from the map
-		map.removeSprite(powerUp);
-		Player player = (Player) map.getPlayer();
+		tileMap.removeSprite(powerUp);
 
 		if (powerUp instanceof Item.Coin) {
 			// do something here, like give the player points
@@ -505,7 +446,11 @@ public class GameManager extends Core {
 			player.setAmmo(Player.WEAPON_PISTOL, 1);
 		} else if (powerUp instanceof Item.Goal) {
 			// advance to next map
-			map = resourceManager.loadNextLevel();
+			tileMap = resourceManager.loadNextLevel();
 		}
+	}
+
+	public void stop() {
+		super.stop();
 	}
 }

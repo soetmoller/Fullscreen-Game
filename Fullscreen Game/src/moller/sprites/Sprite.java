@@ -4,21 +4,20 @@ import java.awt.Image;
 
 public class Sprite {
 
-	protected Animation a;
+	protected Animation animation;
 	private float x;
 	private float y;
-	private float vx;
-	private float vy;
+	private float velocityX;
+	private float velociyY;
 	
 	public Sprite(Animation a) {
-		this.a = a;
+		this.animation = a;
 	}
 	
-	//change position
-	public void update(long timePassed) {
-		x += vx* timePassed;
-		y += vy* timePassed;
-		a.update(timePassed);
+	public void updatePosition(long timePassed) {
+		x += velocityX* timePassed;
+		y += velociyY* timePassed;
+		animation.update(timePassed);
 	}
 	
 	public float getX() {
@@ -38,34 +37,34 @@ public class Sprite {
 	}
 	
 	public int getWidth() {
-		return a.getImage().getWidth(null);
+		return animation.getImage().getWidth(null);
 	}
 	
 	public int getHeight() {
-		return a.getImage().getHeight(null);
+		return animation.getImage().getHeight(null);
 	}
 	
 	public float getVelocityX() {
-		return vx;
+		return velocityX;
 	}
 	
 	public float getVelocityY() {
-		return vy;
+		return velociyY;
 	}
 	
 	public void setVelocityX(float vx) {
-		this.vx = vx;
+		this.velocityX = vx;
 	}
 	
 	public void setVelocityY(float vy) {
-		this.vy = vy;
+		this.velociyY = vy;
 	}
 	
 	public Image getImage() {
-		return a.getImage();
+		return animation.getImage();
 	}
 	
     public Object clone() {
-        return new Sprite(a);
+        return new Sprite(animation);
     }
 }

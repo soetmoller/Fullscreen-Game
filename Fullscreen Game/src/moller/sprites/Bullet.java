@@ -27,9 +27,9 @@ public abstract class Bullet extends Sprite {
 		return isVisible;
 	}
 
-	public static class Normal extends Bullet {
+	public static class HandGunBullet extends Bullet {
 
-		public Normal(Animation a, float initialX, float initialY) {
+		public HandGunBullet(Animation a, float initialX, float initialY) {
 			super(a, initialX, initialY);
 		}
 	}

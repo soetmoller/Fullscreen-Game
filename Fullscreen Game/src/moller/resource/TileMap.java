@@ -1,6 +1,6 @@
 package moller.resource;
 import java.awt.Image;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import moller.sprites.Sprite;
@@ -8,18 +8,17 @@ import moller.sprites.Sprite;
 /**
     The TileMap class contains the data for a tile-based
     map, including Sprites. Each tile is a reference to an
-    Image. Of course, Images are used multiple times in the tile
-    map.
+    Image.
 */
 public class TileMap {
 
     private Image[][] tiles;
-    private LinkedList sprites;
+    private ArrayList sprites;
     private Sprite player;
 
     public TileMap(int width, int height) {
         tiles = new Image[width][height];
-        sprites = new LinkedList();
+        sprites = new ArrayList();
     }
     
     public int getWidth() {

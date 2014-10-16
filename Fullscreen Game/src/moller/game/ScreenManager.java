@@ -22,22 +22,20 @@ import javax.swing.JFrame;
 
 public class ScreenManager {
 
-	private GraphicsDevice vc;
+	private GraphicsDevice graphicsDevice;
 
-	// gives vc access to monitor screen
 	public ScreenManager() {
-		GraphicsEnvironment env = GraphicsEnvironment
+		GraphicsEnvironment environment = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
-		vc = env.getDefaultScreenDevice();
+		graphicsDevice = environment.getDefaultScreenDevice();
 	}
 
 	public DisplayMode[] getCompatibleDisplayModes() {
-		return vc.getDisplayModes();
+		return graphicsDevice.getDisplayModes();
 	}
 
-	// compares DM passed in to vc DM and see if they match
 	public DisplayMode findFirstCompatibleDisplayMode(DisplayMode modes[]) {
-		DisplayMode goodModes[] = vc.getDisplayModes();
+		DisplayMode goodModes[] = graphicsDevice.getDisplayModes();
 		for (int i = 0; i < modes.length; i++) {
 			for (int x = 0; x < goodModes.length; x++) {
 				if (displayModesMatch(modes[i], goodModes[x])) {
@@ -49,103 +47,101 @@ public class ScreenManager {
 	}
 
 	public DisplayMode getCurrentDisplayMode() {
-		return vc.getDisplayMode();
+		return graphicsDevice.getDisplayMode();
 	}
 
-	public boolean displayModesMatch(DisplayMode m1, DisplayMode m2) {
-		if (m1.getWidth() != m2.getWidth() || m1.getHeight() != m2.getHeight()) {
+	public boolean displayModesMatch(DisplayMode displayMode1, DisplayMode displayMode2) {
+		if (displayMode1.getWidth() != displayMode2.getWidth() || displayMode1.getHeight() != displayMode2.getHeight()) {
 			return false;
 		}
-		if (m1.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
-				&& m2.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
-				&& m1.getBitDepth() != m2.getBitDepth()) {
+		if (displayMode1.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
+				&& displayMode2.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
+				&& displayMode1.getBitDepth() != displayMode2.getBitDepth()) {
 			return false;
 		}
-		if (m1.getRefreshRate() != DisplayMode.REFRESH_RATE_UNKNOWN
-				&& m2.getRefreshRate() != DisplayMode.REFRESH_RATE_UNKNOWN
-				&& m1.getRefreshRate() != m2.getRefreshRate()) {
+		if (displayMode1.getRefreshRate() != DisplayMode.REFRESH_RATE_UNKNOWN
+				&& displayMode2.getRefreshRate() != DisplayMode.REFRESH_RATE_UNKNOWN
+				&& displayMode1.getRefreshRate() != displayMode2.getRefreshRate()) {
 			return false;
 		}
 
 		return true;
 	}
 
-	public void setFullScreen(DisplayMode dm) {
-		JFrame f = new JFrame();
-		f.setUndecorated(true);
-		f.setIgnoreRepaint(true);
-		f.setResizable(false);
+	public void setFullScreen(DisplayMode displayMode) {
+		JFrame frame = new JFrame();
+		frame.setUndecorated(true);
+		frame.setIgnoreRepaint(true);
+		frame.setResizable(false);
 
-		vc.setFullScreenWindow(f);
+		graphicsDevice.setFullScreenWindow(frame);
 
-		if (dm != null && vc.isDisplayChangeSupported()) {
+		if (displayMode != null && graphicsDevice.isDisplayChangeSupported()) {
 			try {
-				vc.setDisplayMode(dm);
-
+				graphicsDevice.setDisplayMode(displayMode);
 			} catch (Exception exc) {
+				// Do Nothing
 			}
 		}
-		f.createBufferStrategy(2);
+		frame.createBufferStrategy(2);
 	}
 
-	// we will set Graphics object = to this
 	public Graphics2D getGraphics() {
-		Window w = vc.getFullScreenWindow();
-		if (w != null) {
-			BufferStrategy s = w.getBufferStrategy();
+		Window window = graphicsDevice.getFullScreenWindow();
+		if (window != null) {
+			BufferStrategy s = window.getBufferStrategy();
 			return (Graphics2D) s.getDrawGraphics();
 		} else {
 			return null;
 		}
 	}
 
-	// updates graphic
 	public void update() {
-		Window w = vc.getFullScreenWindow();
-		if (w != null) {
-			BufferStrategy s = w.getBufferStrategy();
-			if (!s.contentsLost()) {
-				s.show();
+		Window window = graphicsDevice.getFullScreenWindow();
+		if (window != null) {
+			BufferStrategy strategy = window.getBufferStrategy();
+			if (!strategy.contentsLost()) {
+				strategy.show();
 			}
 		}
 		Toolkit.getDefaultToolkit().sync();
 	}
 
 	public Window getFullScreenWindow() {
-		return vc.getFullScreenWindow();
+		return graphicsDevice.getFullScreenWindow();
 	}
 
 	public int getWidth() {
-		Window w = vc.getFullScreenWindow();
-		if (w != null) {
-			return w.getWidth();
+		Window window = graphicsDevice.getFullScreenWindow();
+		if (window != null) {
+			return window.getWidth();
 		} else {
 			return 0;
 		}
 	}
 
 	public int getHeight() {
-		Window w = vc.getFullScreenWindow();
-		if (w != null) {
-			return w.getHeight();
+		Window window = graphicsDevice.getFullScreenWindow();
+		if (window != null) {
+			return window.getHeight();
 		} else {
 			return 0;
 		}
 	}
 
 	public void restoreScreen() {
-		Window w = vc.getFullScreenWindow();
-		if (w != null) {
-			w.dispose();
+		Window wwindow = graphicsDevice.getFullScreenWindow();
+		if (wwindow != null) {
+			wwindow.dispose();
 		}
-		vc.setFullScreenWindow(null);
+		graphicsDevice.setFullScreenWindow(null);
 	}
 
-	public BufferedImage createCompatibleImage(int w, int h, int t) {
-		Window window = vc.getFullScreenWindow();
+	public BufferedImage createCompatibleImage(int width, int height, int transparency) {
+		Window window = graphicsDevice.getFullScreenWindow();
 		if (window != null) {
 			GraphicsConfiguration gc = window.getGraphicsConfiguration();
-			return gc.createCompatibleImage(w, h, t);
+			return gc.createCompatibleImage(width, height, transparency);
 		}
 		return null;
 	}

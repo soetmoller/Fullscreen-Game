@@ -1,4 +1,5 @@
 package moller.input;
+
 /********************************************************************************************************************************************************************************************
  * GameAction.java
  * 
@@ -6,19 +7,16 @@ package moller.input;
  * or moving. GameActions can be mapped to keys or the mouse with the
  * InputManager
  * 
- * Made By: Emil Möller
- * Email: emilmol@kth.se
+ * Made By: Emil Möller Email: emilmol@kth.se
  *******************************************************************************************************************************************************************************************/
 
 public class GameAction {
-	
-	// Default behavior. The isPressed() method returns true as long as the key
-	// is held down.
+
+	// The isPressed() method returns true as long as the key is held down.
 	public static final int DEFAULT = 0;
 
-	// Initial press behavior. The isPressed() method returns true only after
-	// the key is first pressed, and not again until the key is released and
-	// pressed again
+	// The isPressed() method returns true only after the key is first pressed,
+	// and not again until the key is released and pressed again
 	public static final int DETECT_INITAL_PRESS_ONLY = 1;
 
 	private static final int STATE_RELEASED = 0;
@@ -49,7 +47,6 @@ public class GameAction {
 		amount = 0;
 	}
 
-	// Taps this GameAction. Same as calling press() followed by release().
 	public synchronized void tap() {
 		press();
 		release();
@@ -59,8 +56,6 @@ public class GameAction {
 		press(1);
 	}
 
-	// Signals that the key was pressed a specified number of times, or that the
-	// mouse move a specified distance.
 	public synchronized void press(int amount) {
 		if (state != STATE_WAITING_FOR_RELEASE) {
 			this.amount += amount;

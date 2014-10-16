@@ -3,17 +3,15 @@ import java.lang.reflect.Constructor;
 
 public abstract class Item extends Sprite {
 
-	public Item(Animation a) {
-		super(a);
+	public Item(Animation animation) {
+		super(animation);
 	}
 
-
     public Object clone() {
-        // use reflection to create the correct subclass
         Constructor constructor = getClass().getConstructors()[0];
         try {
             return constructor.newInstance(
-                new Object[] {(Animation)a.clone()});
+                new Object[] {(Animation)animation.clone()});
         }
         catch (Exception ex) {
             // should never happen
@@ -22,24 +20,21 @@ public abstract class Item extends Sprite {
         }
     }
 	
-	// Collect Bullets to kill enemies
 	public static class Ammo extends Item {
-		public Ammo(Animation anim) {
-			super(anim);
+		public Ammo(Animation animation) {
+			super(animation);
 		}
 	}
 
-	// Collect coins
 	public static class Coin extends Item {
-		public Coin(Animation anim) {
-			super(anim);
+		public Coin(Animation animation) {
+			super(animation);
 		}
 	}
 
-	// When the player reaches the goal he wins.
 	public static class Goal extends Item {
-		public Goal(Animation anim) {
-			super(anim);
+		public Goal(Animation animation) {
+			super(animation);
 		}
 	}
 }

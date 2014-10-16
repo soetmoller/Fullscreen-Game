@@ -3,7 +3,7 @@ import java.lang.reflect.Constructor;
 
 public abstract class Creature extends Sprite {
 
-	private static final int DIE_TIME = 1000;
+	private static final int TIME_TO_DIE = 1000;
 
 	public static final int STATE_NORMAL = 0;
 	public static final int STATE_DYING = 1;
@@ -26,13 +26,11 @@ public abstract class Creature extends Sprite {
 		state = STATE_NORMAL;
 	}
 
-	// Gets the state of the creature
 	public int getState() {
 		return state;
 	}
 
 	public Object clone() {
-		// use reflection to create the correct subclass
 		Constructor constructor = getClass().getConstructors()[0];
 		try {
 			return constructor
@@ -62,40 +60,24 @@ public abstract class Creature extends Sprite {
 		}
 	}
 
-	/**
-	 * Wakes up the creature when the Creature first appears on screen.
-	 * Normally, the creature starts moving left.
-	 */
 	public void wakeUp() {
 		if (getState() == STATE_NORMAL && getVelocityX() == 0) {
 			setVelocityX(-getMaxSpeed());
 		}
 	}
 
-	/**
-	 * Checks if this creature is alive.
-	 */
 	public boolean isAlive() {
 		return (state == STATE_NORMAL);
 	}
 
-	/**
-	 * Checks if this creature is flying.
-	 */
 	public boolean isFlying() {
 		return false;
 	}
 
-	/**
-	 * Called before update() if the creature collided with a tile horizontally.
-	 */
 	public void collideHorizontal() {
 		setVelocityX(-getVelocityX());
 	}
 
-	/**
-	 * Called before update() if the creature collided with a tile vertically.
-	 */
 	public void collideVertical() {
 		setVelocityY(0);
 	}
@@ -103,32 +85,34 @@ public abstract class Creature extends Sprite {
 	/**
 	 * Updates the animaton for this creature.
 	 */
-	public void update(long elapsedTime) {
-		// select the correct Animation
-		Animation newAnim = a;
-		if (getVelocityX() < 0) {
-			newAnim = left;
-		} else if (getVelocityX() > 0) {
-			newAnim = right;
-		}
-		if (state == STATE_DYING && newAnim == left) {
-			newAnim = leftDead;
-		} else if (state == STATE_DYING && newAnim == right) {
-			newAnim = rightDead;
-		}
+	public void updatePosition(long elapsedTime) {
+		Animation newAnimation = getCorrectAnimation();
 
-		// update the Animation
-		if (a != newAnim) {
-			a = newAnim;
-			a.start();
+		if (animation != newAnimation) {
+			animation = newAnimation;
+			animation.start();
 		} else {
-			a.update(elapsedTime);
+			animation.update(elapsedTime);
 		}
 
-		// update to "dead" state
 		stateTime += elapsedTime;
-		if (state == STATE_DYING && stateTime >= DIE_TIME) {
+		if (state == STATE_DYING && stateTime >= TIME_TO_DIE) {
 			setState(STATE_DEAD);
 		}
+	}
+	
+	private Animation getCorrectAnimation() {
+		Animation newAnimation = animation;
+		if (getVelocityX() < 0) {
+			newAnimation = left;
+		} else if (getVelocityX() > 0) {
+			newAnimation = right;
+		}
+		if (state == STATE_DYING && newAnimation == left) {
+			newAnimation = leftDead;
+		} else if (state == STATE_DYING && newAnimation == right) {
+			newAnimation = rightDead;
+		}
+		return newAnimation;
 	}
 }

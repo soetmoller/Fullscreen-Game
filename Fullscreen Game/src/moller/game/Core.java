@@ -25,32 +25,30 @@ public abstract class Core {
 			new DisplayMode(640, 480, 16, 0) };
 
 	private boolean running;
-	protected ScreenManager sm;
+	protected ScreenManager screenManager;
 
 	public void stop() {
 		running = false;
 	}
 
-	// call init and gameloop
 	public void run() {
 		try {
 			init();
 			gameLoop();
 		} finally {
-			sm.restoreScreen();
+			screenManager.restoreScreen();
 		}
 	}
 
-	// set full screen
 	public void init() {
-		sm = new ScreenManager();
-		DisplayMode dm = sm.findFirstCompatibleDisplayMode(modes);
-		sm.setFullScreen(dm);
+		screenManager = new ScreenManager();
+		DisplayMode dm = screenManager.findFirstCompatibleDisplayMode(modes);
+		screenManager.setFullScreen(dm);
 
-		Window w = sm.getFullScreenWindow();
-		w.setFont(new Font("Arial", Font.PLAIN, 24));
-		w.setBackground(Color.GREEN);
-		w.setForeground(Color.WHITE);
+		Window window = screenManager.getFullScreenWindow();
+		window.setFont(new Font("Arial", Font.PLAIN, 24));
+		window.setBackground(Color.GREEN);
+		window.setForeground(Color.WHITE);
 		running = true;
 	}
 
@@ -58,21 +56,20 @@ public abstract class Core {
 		return new ImageIcon(fileName).getImage();
 	}
 
-	// main gameLoop
 	public void gameLoop() {
 		long startingTime = System.currentTimeMillis();
-		long cumTime = startingTime;
+		long cumulativeTime = startingTime;
 
 		while (running) {
-			long timePassed = System.currentTimeMillis() - cumTime;
-			cumTime += timePassed;
+			long timePassed = System.currentTimeMillis() - cumulativeTime;
+			cumulativeTime += timePassed;
 
 			update(timePassed);
 
-			Graphics2D g = sm.getGraphics();
+			Graphics2D g = screenManager.getGraphics();
 			draw(g);
 			g.dispose();
-			sm.update();
+			screenManager.update();
 
 			try {
 				Thread.sleep(20);
@@ -82,9 +79,6 @@ public abstract class Core {
 		}
 	}
 
-	// update method for use in child class
 	public abstract void update(long timePassed);
-
-	// draws to the screen in child class
 	public abstract void draw(Graphics2D g);
 }

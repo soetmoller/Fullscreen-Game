@@ -1,44 +1,34 @@
 package moller.sprites;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.ImageIcon;
 
 public class Player extends Creature {
 
 	private static final float JUMP_SPEED = -.95f;
 
-	private boolean onGround;
-	private int coins = 0;
-	private boolean firing;
-	private boolean lookingLeft;
-	private int weaponState;
-	public static int WEAPON_NO = 0;
+	public static int WEAPON_NO_WEAPON = 0;
 	public static int WEAPON_PISTOL = 1;
 	public static int WEAPON_MACHINE_GUN = 2;
 	public static int WEAPON_ROCKET_LAUNCHER = 3;
 
-	private List<Integer> pistolAmmo = new ArrayList<Integer>();
-	private List<Integer> machineGunAmmo = new ArrayList<Integer>();
-	private List<Integer> rocketLauncerAmmo = new ArrayList<Integer>();
+	private boolean onGround;
+	private int coins = 0;
+	private boolean firing;
+	private boolean lookingLeft;
+	private int weaponUsed;
 
-	private HashMap<Integer, List<Integer>> ammo;
+	private HashMap<Integer, Integer> ammo;
 
 	public Player(Animation right, Animation left, Animation rightDead,
 			Animation leftDead) {
 		super(right, left, rightDead, leftDead);
-		ammo = new HashMap<Integer, List<Integer>>(3);
-		weaponState = WEAPON_PISTOL;
+		ammo = new HashMap<Integer, Integer>();
+		weaponUsed = WEAPON_PISTOL;
 		lookingLeft = false;
 
-		for (int x = 0; x < 10; x++) {
-			pistolAmmo.add(x);
-		}
-		ammo.put(0, new ArrayList<Integer>());
-		ammo.put(1, pistolAmmo);
-		ammo.put(2, machineGunAmmo);
-		ammo.put(3, rocketLauncerAmmo);
+		ammo.put(0, 0);
+		ammo.put(1, 10);
+		ammo.put(2, 1);
+		ammo.put(3, 1);
 	}
 
 	public void collideHorizontal() {
@@ -46,7 +36,6 @@ public class Player extends Creature {
 	}
 
 	public void collideVertical() {
-		// check if collided with ground
 		if (getVelocityY() > 0) {
 			onGround = true;
 		}
@@ -54,7 +43,6 @@ public class Player extends Creature {
 	}
 
 	public void setY(float y) {
-		// check if falling
 		if (Math.round(y) > Math.round(getY())) {
 			onGround = false;
 		}
@@ -67,7 +55,7 @@ public class Player extends Creature {
 
 	/**
 	 * Makes the player jump if the player is on the ground or if forceJump is
-	 * true.
+	 * true. A forced jump can be double jump for example.
 	 */
 	public void jump(boolean forceJump) {
 		if (onGround || forceJump) {
@@ -77,16 +65,9 @@ public class Player extends Creature {
 	}
 
 	public void fire() {
-		int state = getWeaponState();
+		int weaponUsed = getWeaponUsed();
 		if (getAmmo() != 0) {
-			if (state == 1) {
-				pistolAmmo.remove(0);
-			} else if (state == 2) {
-				machineGunAmmo.remove(0);
-			} else if (state == 3) {
-				rocketLauncerAmmo.remove(0);
-			} else
-				System.out.println("WRONG");
+			ammo.put(weaponUsed, ammo.get(weaponUsed)-1);
 		}
 	}
 
@@ -107,39 +88,26 @@ public class Player extends Creature {
 	}
 
 	public int getAmmo() {
-		return ammo.get(getWeaponState()).size();
+		return ammo.get(getWeaponUsed());
 	}
 
-	public int getWeaponState() {
-		return weaponState;
+	public int getWeaponUsed() {
+		return weaponUsed;
 	}
 
-	public void setWeaponState(int WEAPON_STATE) {
-		this.weaponState = WEAPON_STATE;
+	public void setWeaponUsed(int weaponToUse) {
+		this.weaponUsed = weaponToUse;
 	}
 
-	public void setAmmo(int bullets, int WEAPON_STATE) {
-		if (WEAPON_STATE == 1) {
-			for (int x = 0; x < bullets; x++) {
-				pistolAmmo.add(1);
-			}
-		} else if (WEAPON_STATE == 2) {
-			for (int x = 0; x < bullets; x++) {
-				machineGunAmmo.add(1);
-			}
-		} else if (WEAPON_STATE == 3) {
-			for (int x = 0; x < bullets; x++) {
-				rocketLauncerAmmo.add(1);
-			}
-		} else
-			System.out.println("WRONG");
+	public void setAmmo(int bullets, int weapon) {
+		ammo.put(weapon, ammo.get(weapon) + bullets);
 	}
 	
 	public boolean lookingLeft() {
 		return lookingLeft;
 	}
 	
-	public void lookingLeft(boolean var) {
-		lookingLeft = var;
+	public void lookingLeft(boolean isLookingLeft) {
+		lookingLeft = isLookingLeft;
 	}
 }
