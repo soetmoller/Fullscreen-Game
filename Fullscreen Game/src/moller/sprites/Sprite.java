@@ -14,9 +14,9 @@ public class Sprite {
 		this.animation = a;
 	}
 	
-	public void updatePosition(long timePassed) {
-		x += velocityX* timePassed;
-		y += velociyY* timePassed;
+	public void update(long timePassed) {
+		x += velocityX * timePassed;
+		y += velociyY * timePassed;
 		animation.update(timePassed);
 	}
 	

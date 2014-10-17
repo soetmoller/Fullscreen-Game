@@ -1,4 +1,4 @@
-package moller.game;
+package moller.core;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

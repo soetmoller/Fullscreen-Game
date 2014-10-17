@@ -82,10 +82,7 @@ public abstract class Creature extends Sprite {
 		setVelocityY(0);
 	}
 
-	/**
-	 * Updates the animaton for this creature.
-	 */
-	public void updatePosition(long elapsedTime) {
+	public void update(long elapsedTime) {
 		Animation newAnimation = getCorrectAnimation();
 
 		if (animation != newAnimation) {
